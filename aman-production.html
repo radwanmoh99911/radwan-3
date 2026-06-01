@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام أمان للموارد الزراعية - قسم التكاليف والمخزون</title>
+    <style>
+        :root { --p-color: #2e7d32; --s-color: #1565c0; --dark: #263238; --danger: #d32f2f; --orange: #e65100; --bg-color: #f4f7f6; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-color); padding: 5px; margin: 0; color: #333; }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        
+        .desktop-tabs { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; flex-wrap: wrap; background: #eef2f5; padding: 10px; border-radius: 8px; border: 1px solid #cfd8dc; }
+        .tab-btn { background: #fff; border: 2px solid #b0bec5; color: var(--dark); padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 15px; display: flex; align-items: center; gap: 8px; transition: all 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .tab-btn:hover { border-color: var(--s-color); transform: translateY(-2px); }
+        .tab-btn.active { background: var(--s-color); color: #fff; border-color: var(--s-color); box-shadow: 0 4px 10px rgba(21,101,192,0.3); transform: translateY(-3px); }
+        
+        .main-tab-content { display: none; animation: fadeIn 0.4s ease-in-out; }
+        .main-tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .prod-selector-container { background: #fff3e0; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px dashed var(--orange); display:flex; align-items:center; gap:15px; }
+        .prod-selector { font-size: 16px; padding: 8px; border-radius: 5px; border: 2px solid var(--orange); font-weight: bold; color: var(--dark); flex-grow: 1; cursor: pointer; }
+
+        .main-header { text-align: center; border-bottom: 3px solid var(--p-color); margin-bottom: 10px; padding-bottom: 10px; }
+        .info-bar { display: grid; grid-template-columns: 1fr 1fr 1fr; background: #f9f9f9; padding: 8px; border: 1px solid #ddd; margin-top: 10px; font-weight: bold; text-align: center; }
+        .control-panel { background: #fff3e0; padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #ffe0b2; }
+        .section-h { background: var(--p-color); color: white; padding: 8px; margin-top: 15px; border-radius: 4px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+        .feed-h { background: var(--s-color) !important; }
+        .audit-h { background: var(--dark) !important; }
+        .dispense-h { background: #1976d2 !important; border-bottom: 3px solid #0d47a1; }
+        table { width: 100%; border-collapse: collapse; margin-top: 5px; font-size: 13px; table-layout: fixed; }
+        th, td { border: 1px solid #ccc; padding: 6px; text-align: center; word-wrap: break-word; }
+        th { background: #f2f2f2; }
+        input[type="text"], input[type="number"], input[type="date"], input[type="time"] { width: 90%; padding: 4px; border: 1px solid #ddd; text-align: center; border-radius: 3px; font-family: inherit; }
+        select { width: 95%; padding: 4px; border: 1px solid #ddd; text-align: center; border-radius: 3px; font-family: inherit; font-weight: bold; color: var(--s-color); }
+        .total-row { background: #fff9c4; font-weight: bold; }
+        .summary-box { background: var(--dark); color: #ffca28; padding: 15px; border-radius: 6px; display: grid; grid-template-columns: 1fr 1fr 1fr; text-align: center; margin: 15px 0; font-weight: bold; }
+        .btn { padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; color: white; margin: 2px; transition: 0.3s; }
+        .del-btn { background: var(--danger); color: white; border: none; border-radius: 3px; cursor: pointer; padding: 2px 8px; }
+        .modal { display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); overflow-y: auto; }
+        .modal-content { background: white; width: 95%; max-width:800px; margin: 50px auto; padding: 20px; border-radius:8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .time-wrapper { display: inline-flex; align-items: center; background: rgba(255,255,255,0.15); padding: 2px 8px; border-radius: 4px; gap: 5px; font-size: 11px; margin-right: 10px; }
+        .time-wrapper input[type="time"] { width: 75px !important; padding: 1px !important; font-size: 11px; font-weight: bold; border: none; }
+        .calc-hrs-span { background: #fff; color: #000; padding: 2px 6px; border-radius: 3px; font-weight: bold; min-width: 35px; display: inline-block; text-align: center; margin-left: 2px; } 
+        .arch-table { background: #fafafa; margin-top: 10px; border: 1px solid #b0bec5; width:100%; }
+        .arch-table th { background: #cfd8dc; color: #263238; }
+        .auto-gen-row { background: #e8f5e9; font-style: italic; color: #1b5e20; }
+        .filter-bar { background: #e3f2fd; padding: 8px; display: flex; gap: 15px; align-items: center; border: 1px solid #90caf9; border-top: none; border-radius: 0 0 4px 4px; margin-bottom: 10px; font-size: 12px; flex-wrap: wrap; }
+    </style>
+</head>
+<body> 
+
+<div id="fullContainer" class="container">
+    <div class="main-header">
+        <h2>شركة أمان للموارد الزراعية وإنتاج الأعلاف</h2>
+        <p style="color:var(--p-color); font-weight:bold; margin:5px;">قسم التكاليف والمخزون</p>
+        <div class="info-bar">
+            <span>سند رقم: <span id="currentStatusLabel" style="color:var(--danger)">مباشر (غير محفوظ)</span> (<span class="val-no">-</span>)</span>
+            <span>التاريخ: <span class="val-date">-</span></span>
+            <span>إجمالي ساعات التشغيل الحالية: <span class="val-hours">0.00</span> ساعة</span>
+        </div>
+    </div> 
+
+    <div class="desktop-tabs">
+        <div class="tab-btn active" id="btn_tab-prod" onclick="switchMainTab('tab-prod')">🏭 عمليات الإنتاج</div>
+        <div class="tab-btn" id="btn_tab-audit" onclick="switchMainTab('tab-audit')">⚖️ توريد المخازن</div>
+        <div class="tab-btn" id="btn_tab-dispense" onclick="switchMainTab('tab-dispense')">🚚 صرف للعملاء</div>
+        <div class="tab-btn" id="btn_tab-reports" onclick="switchMainTab('tab-reports')">📊 التقارير والإدارة</div>
+        <div class="tab-btn" id="btn_tab-archive" onclick="switchMainTab('tab-archive')">🗄️ الأرشيف المالي</div>
+    </div>
+
+    <div class="control-panel">
+        <h4 style="margin:0 0 10px 0; color:var(--orange);">🏭 معايير التكلفة الصناعية والإنتاجية الثابتة</h4>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; background: #fff; padding: 10px; border-radius: 5px; border: 1px solid #ddd;">
+            <label style="font-weight: bold;">
+                ⚙️ التكلفة الصناعية الثابتة للطن ($):
+                <input type="number" id="fixedVariableCost" value="25.17" oninput="doCalc()" style="width: 80%; font-weight: bold; color: var(--danger);">
+            </label>
+            <label style="font-weight: bold; color: var(--s-color);">
+                💵 سعر بيع طن العلف المستهد"
